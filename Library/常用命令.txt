@@ -1,0 +1,13 @@
+django-admin startproject locallibrary
+cd locallibrary
+
+python manage.py startapp catalog
+
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py runserver
+
+python manage.py createsuperuser
+
+mysql -u root -p

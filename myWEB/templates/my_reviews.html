@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../../static/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="../../static/css/dashboard.css" rel="stylesheet">
+    <title> 评书记录 </title>
+    <script src="../../static/zico/JS/zico.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow" style="background-color: #29abff;">
+    <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/dz_index/" style="font-family: 楷体; font-weight: bold;font-size: x-large;">图书管理系统</a>
+    <span style="font-size: medium; color: #ffffff; margin-top: 0px; font-weight: bold;font-size: large;">欢迎  {{ xm }} (ID: {{ dzid }})</span>
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="/logout_view/" style="font-weight: bold;color: #ffffff">退出登录</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <div class="sidebar-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dz_index/">
+                            <i class="zi zi_service"></i>
+                            <span>读者首页</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/current_borrows/">
+                            <i class="zi zi_list"></i>
+                            <span>当前借阅书籍</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dz_smztcx/">
+                            <i class="zi zi_search"></i>
+                            <span>书目查询与评论</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dz_js/">
+                            <i class="zi zi_book"></i>
+                            <span>借书</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dz_hs/">
+                            <i class="zi zi_book"></i>
+                            <span>还书</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/my_reviews/">
+                            <i class="zi zi_commentalt"></i>
+                            <span>评书记录</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ranking/">
+                            <i class="zi zi_listSquare"></i>
+                            <span>排行榜</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom" style="font-family: 华文行楷; font-size: xx-large; color: #42408fe6;">
+        <h1 class="h2">评书记录</h1>
+    </div>
+    {% if reviews %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">序号</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">书名</th>
+                    <th scope="col">评分</th>
+                    <th scope="col">评语</th>
+                    <th scope="col">评论时间</th>
+                   
+                    <th scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr id="review-{{ review.id }}">
+                    <th scope="row">{{ forloop.counter|add:offset }}</th>
+                    <td><a href="{% url 'book_details' review.isbn %}">{{ review.isbn }}</a></td>
+                        <td>{{ review.sm }}</td>
+                        <td>{{ review.score }}</td>
+                        <td>{{ review.comment }}</td>
+                        <td>{{ review.comment_time }}</td>
+                        <td><button class="btn btn-danger btn-sm revoke-btn" data-review-id="{{ review.id }}">撤回评论</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+                <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="?page={{ current_page|add:"-1" }}">Previous</a>
+                </li>
+                <!-- Display current page and total pages -->
+                <li class="page-item disabled"><a class="page-link">Page {{ current_page }} of {{ total_pages }}</a></li>
+                <li class="page-item {% if current_page >= total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="?page={{ current_page|add:"+1" }}">Next</a>
+                </li>
+                <!-- Link to jump to the last page -->
+                <li class="page-item"><a class="page-link" href="?page={{ total_pages }}">Last</a></li>
+            </ul>
+        </nav>
+    {% else %}
+        <p>当前没有评书记录</p>
+    {% endif %}
+    
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.revoke-btn').forEach(button => {
+            button.onclick = () => { // Changed to an arrow function
+                const reviewId = button.getAttribute('data-review-id'); // Use button instead of this
+                fetch('/revoke_review/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({ reviewId: reviewId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Something went wrong');
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`review-${reviewId}`).remove();
+                    } else {
+                        alert('Failed to revoke review');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            };
+        });
+    });
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+</body>
+</html>
+<style>
+    body{
+        background-image:url("../../static/img/background-i.jpg");
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-repeat: no-repeat;
+        background-attachment:fixed;
+    }
+</style>

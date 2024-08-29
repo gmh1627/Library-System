@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../../static/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="../../static/css/dashboard.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../static/zico/JS/zico.min.js"></script>
+    <script>
+        $(function () {
+            $('#alert').alert()
+        })
+    </script>
+    <title> 管理员入库 </title>
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow" style="background-color: #29abff;">
+        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/gly_index/" style="font-family: 楷体; font-weight: bold;font-size: x-large;">图书管理系统</a>
+        <span style="font-size: medium; color: #ffffff; margin-top: 0px; font-weight: bold;font-size: large;">欢迎  {{ xm }} (ID: {{ glyid }})</span> 
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="/logout_view/" style="font-weight: bold;color: #ffffff">退出登录</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/gly_index/">
+                                <i class="zi zi_service"></i>
+                                <span>管理员首页</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/gly_smztcx/">
+                                <i class="zi zi_search"></i>
+                                <span>书目状态查询</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/smzt_all/">
+                                <i class="zi zi_list"></i>
+                                <span>所有书目状态</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/borrowed_books/">
+                                <i class="zi zi_list"></i>
+                                <span>所有借阅信息</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/gly_rk/">
+                                <i class="zi zi_signinalt"></i>
+                                <span>入库</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/gly_ck/">
+                                <i class="zi zi_signoutalt"></i>
+                                <span>出库</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/book_count/">
+                                <i class="zi zi_book"></i>
+                                <span>书籍被借阅次数统计</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reader_count/">
+                                <i class="zi zi_book"></i>
+                                <span>读者借书数量统计</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom" style="font-family: 华文行楷; font-size: xx-large; color: #42408fe6;">
+            <h1 class="h2">图书入库</h1>
+        </div>
+        <form role="form" action="/gly_rk/" method="post" id="bookForm">
+            {% csrf_token %}
+            <span class="badge badge-pill badge-primary">必填</span>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label for="isbn" class="col-form-label">ISBN号</label>
+                    <input name="isbn" type="text" class="form-control" id="isbn" placeholder="请输入ISBN号" value="{{ isbn }}" autofocus>
+                </div>
+                <div class="col-sm-3">
+                    <label for="rksl" class="col-form-label"> 入库数量 </label>
+                    <input name="rksl" type="number" min="1" class="form-control" id="rksl" placeholder="请输入入库数量" value="{{ rksl }}">
+                </div>
+                <div class="col-sm-3">
+                    <label for="rkhzt" class="col-form-label">入库后状态</label>
+                    <select class="custom-select" name="rkhzt">
+                        <option selected>请选择流通室或阅览室...</option>
+                        <option name="rkhzt" id="rkhzt">流通室</option>
+                        <option name="rkhzt" id="rkhzt">阅览室</option>
+                    </select>
+                </div>
+            </div>
+            <hr style="border-top:1px solid #dee2e6;" width="100%" color="#dee2e6" size=1>
+            <span class="badge badge-pill badge-primary">新书录入时填写</span>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label for="sm" class="col-form-label"> 书名</label>
+                    <input name="sm" type="text" class="form-control" id="sm" placeholder="请输入书名" value="{{ sm }}">
+                </div>
+                <div class="col-sm-3">
+                    <label for="zz" class="col-form-label">作者</label>
+                    <input name="zz" type="text" class="form-control" id="zz" placeholder="请输入作者" value="{{ zz }}" autofocus>
+                </div>
+                <div class="col-sm-3">
+                    <label for="cbs" class="col-form-label"> 出版社 </label>
+                    <input name="cbs" type="text" class="form-control" id="cbs" placeholder="请输入出版社" value="{{ cbs }}">
+                </div>
+                <div class="col-sm-3">
+                    <label for="cbny" class="col-form-label">出版时间（yyyy-mm-dd）</label>
+                    <input name="cbny" type="text" class="form-control" id="cbny" placeholder="请输入出版年月日yyyy-mm-dd" value="{{ cbny }}" pattern="\d{4}-\d{2}-\d{2}" title="请输入正确的年月日格式，例如：2023-01-01" autofocus>
+                    <small class="form-text text-muted">格式：yyyy-mm-dd</small>
+                </div>
+            </div>
+            <button class="btn btn-primary mt-2" type="submit">入库</button>
+            <br><br>
+            {%if msg%}
+            <div id="alert" class="alert alert-primary alert-dismissible fade show" role="alert" style="display: inline-flex">
+                {{ msg }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            {% endif %}
+        </form>
+        {% if refresh_page %}
+        <script>
+        $(document).ready(function() {
+            // 清空表单
+            $('form').trigger('reset');
+            // 可选：显示入库成功的消息，然后刷新页面
+            alert('{{ msg }}');
+            // 刷新页面
+            setTimeout(function() {
+                window.location.reload();
+            }, 500); // 0.5秒后刷新页面，给用户时间阅读成功消息
+        });
+        </script>
+        {% endif %}
+    </main>
+    <script>
+        document.getElementById('bookForm').addEventListener('submit', function(event) {
+            var cbnyInput = document.getElementById('cbny');
+            var pattern = /^\d{4}-\d{2}-\d{2}$/;
+            if (!pattern.test(cbnyInput.value)) {
+                alert('出版时间格式不正确，请按照yyyy-mm-dd格式输入。');
+                event.preventDefault(); // 阻止表单提交
+            }
+        });
+    </script>
+    </div>
+</div>
+</body>
+</html>
+<style>
+    body{
+        background-image:url("../../static/img/background-i.jpg");
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-repeat: no-repeat;
+        background-attachment:fixed;
+    }
+</style>

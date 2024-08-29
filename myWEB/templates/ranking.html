@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../../static/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="../../static/css/dashboard.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../static/zico/JS/zico.min.js"></script>
+    <title> 读者书目状态查询 </title>
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow" style="background-color: #29abff;">
+        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/dz_index/" style="font-family: 楷体; font-weight: bold;font-size: x-large;">图书管理系统</a>
+        <span style="font-size: medium; color: #ffffff; margin-top: 0px; font-weight: bold;font-size: large;">欢迎  {{ xm }} (ID: {{ id }})</span>
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="/logout_view/" style="font-weight: bold;color: #ffffff">退出登录</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_index/">
+                                <i class="zi zi_service"></i>
+                                <span>读者首页</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/current_borrows/">
+                                <i class="zi zi_list"></i>
+                                <span>当前借阅书籍</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_smztcx/">
+                                <i class="zi zi_search"></i>
+                                <span>书目查询与评论</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_js/">
+                                <i class="zi zi_book"></i>
+                                <span>借书</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_hs/">
+                                <i class="zi zi_book"></i>
+                                <span>还书</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/my_reviews/">
+                                <i class="zi zi_commentalt"></i>
+                                <span>评书记录</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/ranking/">
+                                <i class="zi zi_listSquare"></i>
+                                <span>排行榜</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom" style="font-family: 华文行楷; font-size: xx-large; color: #42408fe6;">
+            <h1 class="h2">排行榜</h1>
+        </div>
+    
+        <h4 style="font-family: 华文仿宋; font-weight: bold; font-size: x-large; color: #42408fe6;">评分最高的十本书</h4>
+        <table class="table container-fluid">
+            <thead class="thead-light">
+                <tr class="table-primary">
+                    <th>书名</th>
+                    <th>ISBN</th>
+                    <th>平均评分</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in top_rated_books %}
+                <tr>
+                    <td>{{ book.isbn__sm }}</td>
+                    <td>{{ book.isbn }}</td>
+                    <td style="font-weight: 600;">{{ book.average_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <h4 style="font-family: 华文仿宋; font-weight: bold; font-size: x-large; color: #42408fe6;">被借阅次数最多的十本书</h4>
+        <table class="table container-fluid">
+            <thead class="thead-light">
+                <tr class="table-primary">
+                    <th>书名</th>
+                    <th>ISBN</th>
+                    <th>借阅次数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in most_borrowed_books %}
+                <tr>
+                    <td>{{ book.tsid__isbn__sm }}</td>
+                    <td>{{ book.tsid__isbn }}</td>
+                    <td style="font-weight: 600;">{{ book.borrow_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+</body>
+</html>
+<style>
+    body {
+        background-image: url("../../static/img/background-i.jpg");
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+</style>

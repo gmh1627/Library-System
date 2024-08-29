@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../../static/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="../../static/css/dashboard.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../static/zico/JS/zico.min.js"></script>
+    <title> 读者书目状态查询 </title>
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow" style="background-color: #29abff;">
+        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/dz_index/" style="font-family: 楷体; font-weight: bold;font-size: x-large;">图书管理系统</a>
+        <span style="font-size: medium; color: #ffffff; margin-top: 0px; font-weight: bold;font-size: large;">欢迎  {{ xm }} (ID: {{ id }})</span>
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="/logout_view/" style="font-weight: bold;color: #ffffff">退出登录</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_index/">
+                                <i class="zi zi_service"></i>
+                                <span>读者首页</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/current_borrows/">
+                                <i class="zi zi_list"></i>
+                                <span>当前借阅书籍</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/dz_smztcx/">
+                                <i class="zi zi_search"></i>
+                                <span>书目查询与评论</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_js/">
+                                <i class="zi zi_book"></i>
+                                <span>借书</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dz_hs/">
+                                <i class="zi zi_book"></i>
+                                <span>还书</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/my_reviews/">
+                                <i class="zi zi_commentalt"></i>
+                                <span>评书记录</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/ranking/">
+                                <i class="zi zi_listSquare"></i>
+                                <span>排行榜</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom" style="font-family: 华文行楷; font-size: xx-large; color: #42408fe6;">
+        <h1 class="h2">书目查询与评论</h1>
+    </div>
+    <form role="form" action="/dz_smztcx/" method="post" class="container-fluid">
+        {% csrf_token %}
+        <div class="form-group row">
+            <label for="sm" class="col-md-1 col-form-label">书名</label>
+            <div class="col-sm-2">
+                <input name="sm" type="text" class="form-control" id="sm" placeholder="" value="{{ sm }}" autofocus>
+            </div>
+            <label for="zz" class="col-md-1 col-form-label"> 作者 </label>
+            <div class="col-sm-2">
+                <input name="zz" type="text" class="form-control" id="zz" placeholder="" value="{{ zz }}" autofocus>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="isbn" class="col-md-1 col-form-label"> ISBN </label>
+            <div class="col-sm-2">
+                <input name="isbn" type="text" class="form-control" id="isbn" placeholder="" value="{{ isbn }}"
+                       autofocus>
+            </div>
+            <label for="cbs" class="col-md-1 col-form-label"> 出版社 </label>
+            <div class="col-sm-2">
+                <input name="cbs" type="text" class="form-control" id="cbs" placeholder="" value="{{ cbs }}" autofocus>
+            </div>
+        </div>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#myModal"> 查询</button>
+    </form>
+    <br>
+    {% if msg %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="display:inline-flex">
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <br>
+    {% endif %}
+
+    {% if request.method == 'POST' %}
+        {% if not smzt %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" style="display: inline-block">
+                未找到匹配信息！
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% else %}
+            <hr>
+            <br>
+            <h6 class="container-fluid"><b>查询结果:</b></h6>
+            <table class="table container-fluid">
+                <thead class="thead-light">
+                <tr class="table-primary">
+                    <th> ISBN</th>
+                    <th> 书名</th>
+                    <th> 作者</th>
+                    <th> 出版社</th>
+                    <th> 出版时间</th>
+                    <th> 库藏册数</th>
+                    <th> 不外借册数</th>
+                    <th> 未借出册数</th>
+                    <th> 已借出册数</th>
+                    <th> 评书</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for elem in smzt %}
+                    <tr>
+                        <td> <a href="{% url 'book_details' elem.ISBN %}">{{ elem.ISBN }}</a> </td>
+                        <td> {{ elem.sm }} </td>
+                        <td> {{ elem.zz }} </td>
+                        <td> {{ elem.cbs }} </td>
+                        <td> {{ elem.cbny }} </td>
+                        <td> {{ elem.kccs }} </td>
+                        <td> {{ elem.bwjcs }} </td>
+                        <td> {{ elem.wjccs }} </td>
+                        <td> {{ elem.yjccs }} </td>
+                        <td>
+                            <button type="button" class="btn btn-primary review-book-btn" onclick="checkReview('{{ elem.ISBN }}')" data-isbn="{{ elem.ISBN }}">评书</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>    
+        {% endif %}
+    {% endif %}
+</main>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">书籍评价</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="reviewForm" action="{% url 'submit_review' %}" method="post"> <!-- 注意添加id="reviewForm" -->
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="isbn" id="reviewIsbn" value="">
+                    <div class="form-group">
+                        <label for="score" class="col-form-label">评分(1-10分):</label>
+                        <input type="number" class="form-control" id="score" name="score" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment" class="col-form-label">评论:</label>
+                        <textarea class="form-control" id="comment" name="comment" maxlength="100"></textarea>
+                        <small id="commentHelp" class="form-text text-muted">剩余字数: <span id="remainingChars">100</span></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="submit" class="btn btn-primary">提交评价</button>
+                </div>
+            </form>
+            <script>
+                function checkReview(isbn) {
+                    fetch(`/check_review/${isbn}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.hasReviewed) {
+                            alert("You have already reviewed this book. To submit another review, please revoke your previous one first.");
+                        } else {
+                            // Show the review modal if the user hasn't reviewed the book
+                            $('#reviewIsbn').val(isbn);
+                            console.log(data);
+                            $('#reviewModal').modal('show');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+                </script>
+               
+            <script>
+                // 当文档加载完毕时
+                $(document).ready(function() {
+                    // 监听评论输入框的输入事件
+                    $('#comment').on('input', function() {
+                        // 计算剩余字数
+                        var remaining = 100 - $(this).val().length;
+                        // 更新剩余字数提示
+                        $('#remainingChars').text(remaining);
+                    });
+                });
+            </script>
+            <script>
+            $(document).ready(function() {
+                $('#reviewForm').submit(function(e) {
+                    e.preventDefault(); // 阻止表单的默认提交行为
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'submit_review' %}",
+                        data: $(this).serialize(), // 将表单内容序列化为字符串
+                        success: function(response) {
+                            // 处理成功响应
+                            alert(response.message); // 显示消息
+                            // 显示返回按钮
+                            $('#returnButton').show();
+                        },
+                        error: function(xhr, status, error) {
+                            // 处理错误响应
+                            alert("An error occurred: " + xhr.status + " " + xhr.statusText);
+                        }
+                    });
+                });
+            });
+            </script>
+            <!-- 返回按钮 -->
+            <button id="returnButton" style="display:none;" onclick="window.location.href='{% url 'dz_smztcx' %}'">返回</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+<style>
+    body {
+        background-image: url("../../static/img/background-i.jpg");
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+</style>
