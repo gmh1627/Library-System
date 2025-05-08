@@ -2,7 +2,7 @@
 
 ### 架构
 
-B/S:Python+Django(后端) + MySql（数据库） + Bootstrap（前端）
+B/S(Browser/Server): Python+Django（后端） + MySql（数据库） + Bootstrap（前端）
 
 ### 部署流程
 
